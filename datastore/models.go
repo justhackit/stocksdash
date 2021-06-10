@@ -1,19 +1,26 @@
 package datastore
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
-// schema for user table
-
 // User is the data type for user object
-type User struct {
+type Holding struct {
 	gorm.Model
-	ID         string
-	Email      string `json:"email" validate:"required" sql:"email" gorm:"primary_key"`
-	Password   string `json:"password" validate:"required" sql:"password"`
-	ClientId   string `json:"clientId" validate:"required" gorm:"column:clientid;not null;primary_key"`
-	Roles      string `json:"roles"  gorm:"column:roles";DEFAULT:default`
-	TokenHash  string `json:"tokenhash" gorm:"column:tokenhash;not null;"`
-	IsVerified bool   `json:"isverified" gorm:"column:isverified"`
+	UserId       string  `json:"userId" validate:"required" gorm:"column:userId;not null;primary_key"`
+	Ticker       string  `json:"ticker" validate:"required" gorm:"column:ticker;not null;primary_key"`
+	AvgCostPrice float64 `json:"avgCostPrice" validate:"required" gorm:"column:avgCostPrice;not null"`
+	TotalShares  float64 `json:"totalShares" validate:"required" gorm:"column:avgCostPrice;not null"`
+}
+
+type HistoricalPrices struct {
+	gorm.Model
+	Ticker string    `gorm:"column:ticker;not null;primary_key"`
+	Date   time.Time `gorm:"column:date;not null;primary_key"`
+	Open   float64   `gorm:"column:open"`
+	High   float64   `gorm:"column:high"`
+	Low    float64   `gorm:"column:low"`
+	Close  float64   `gorm:"column:close;not null"`
 }
