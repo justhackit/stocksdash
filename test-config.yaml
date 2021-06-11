@@ -6,3 +6,4 @@ database:
   DBUser:        "postgresadmin"
   DBPass:        "Secret_123" 
   DBPort:        "5432"
+  DBSchema:      "stocks"

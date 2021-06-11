@@ -12,7 +12,7 @@ type Holding struct {
 	UserId       string  `json:"userId" validate:"required" gorm:"column:userId;not null;primary_key"`
 	Ticker       string  `json:"ticker" validate:"required" gorm:"column:ticker;not null;primary_key"`
 	AvgCostPrice float64 `json:"avgCostPrice" validate:"required" gorm:"column:avgCostPrice;not null"`
-	TotalShares  float64 `json:"totalShares" validate:"required" gorm:"column:avgCostPrice;not null"`
+	TotalShares  float64 `json:"totalShares" validate:"required" gorm:"column:totalShares;not null"`
 }
 
 type HistoricalPrices struct {

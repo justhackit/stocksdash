@@ -7,7 +7,7 @@ import (
 
 	finnhub "github.com/Finnhub-Stock-API/finnhub-go"
 	logutils "github.com/cloudlifter/go-utils/logs"
-	configutils "github.com/justhackit/go-app-template/config"
+	configutils "github.com/justhackit/stockedash/config"
 )
 
 func main() {
