@@ -6,7 +6,7 @@ import (
 	"time"
 
 	logutils "github.com/cloudlifter/go-utils/logs"
-	conf "github.com/justhackit/stockedash/config"
+	conf "github.com/justhackit/stocksdash/config"
 )
 
 var repository *PostgresRepository

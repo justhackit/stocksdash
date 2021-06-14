@@ -10,7 +10,7 @@ import (
 	utils "github.com/cloudlifter/go-utils/timeutils"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/justhackit/stockedash/datastore"
+	"github.com/justhackit/stocksdash/datastore"
 )
 
 type PriceHistoryResponse struct {

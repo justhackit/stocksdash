@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/justhackit/stockedash/datastore"
+	"github.com/justhackit/stocksdash/datastore"
 )
 
 type FetchQuotes interface {

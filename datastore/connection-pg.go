@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	utils "github.com/justhackit/stockedash/config"
+	utils "github.com/justhackit/stocksdash/config"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -7,14 +7,14 @@ import (
 	"time"
 
 	logutils "github.com/cloudlifter/go-utils/logs"
-	"github.com/justhackit/stockedash/config"
-	"github.com/justhackit/stockedash/datastore"
+	"github.com/justhackit/stocksdash/config"
+	"github.com/justhackit/stocksdash/datastore"
 )
 
 var tdameritrade *TDAmeritradeAPI
 
 func init() {
-	logger := logutils.NewLogger()
+	logger := logutils.NewLoggerWithName("stocksdash", "DEBUG")
 	configs := config.NewConfigurationsFromFile("../test-config.yaml", logger)
 	db, _ := datastore.NewConnection(configs, logger)
 	repo := datastore.NewPostgresRepository(db, logger)
@@ -37,7 +37,7 @@ func Test_GetHistoricalQuotes(t *testing.T) {
 }
 
 func Test_SaveHistoricalQuotes(t *testing.T) {
-	testTicker := "AAPL"
+	testTicker := "IBM"
 	from := time.Date(2010, time.June, 10, 5, 1, 0, 0, time.UTC)
 	to := time.Date(2021, time.June, 11, 5, 1, 0, 0, time.UTC)
 	if err := tdameritrade.SaveHistoricalQuotes(context.TODO(), testTicker, from, to); err != nil {
