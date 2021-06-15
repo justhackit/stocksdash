@@ -44,8 +44,8 @@ func (repo *PostgresRepository) AddHistorical(ctx context.Context, tickers *Stoc
 	return result.Error
 }
 
-func (repo *PostgresRepository) AddBatchHistorical(ctx context.Context, tickers *[]StockPrices) error {
-	defer utils.TimeTaken("AddBatchHistorical", repo.logger)()
+func (repo *PostgresRepository) AddBatchQuotes(ctx context.Context, tickers *[]StockPrices) error {
+	defer utils.TimeTaken("AddBatchQuotes", repo.logger)()
 	result := repo.db.Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).CreateInBatches(&tickers, 100)

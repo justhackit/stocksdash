@@ -44,3 +44,25 @@ func Test_SaveHistoricalQuotes(t *testing.T) {
 		t.Errorf("unable to save historical quotes : %v", err)
 	}
 }
+
+func Test_GetCurrentQuote(t *testing.T) {
+	testTickers := []string{"IBM", "NKE"}
+	if currQuotes, err := tdameritrade.GetCurrentQuote(context.TODO(), testTickers); err != nil {
+		t.Errorf("unable to get current quotes :%v", err)
+	} else {
+		for _, quote := range *currQuotes {
+			fmt.Printf("%#v\n", quote)
+		}
+	}
+}
+
+func Test_SaveCurrentQuote(t *testing.T) {
+	testTickers := []string{"IBM", "NKE"}
+	for range time.Tick(time.Second * 5) {
+		fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
+		if err := tdameritrade.SaveCurrentQuote(context.TODO(), testTickers); err != nil {
+			t.Errorf("unable to save current quotes : %v", err)
+		}
+	}
+
+}

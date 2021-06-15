@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	utils "github.com/cloudlifter/go-utils/timeutils"
@@ -83,7 +85,59 @@ func (tdapi *TDAmeritradeAPI) SaveHistoricalQuotes(ctx context.Context, ticker s
 		return err
 	}
 	tdapi.logger.Info("Saving Historical Price for DB", "ticker", ticker, "from", from, "to", to)
-	if err := tdapi.repository.AddBatchHistorical(ctx, historicalPrices); err != nil {
+	if err := tdapi.repository.AddBatchQuotes(ctx, historicalPrices); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (tdapi *TDAmeritradeAPI) GetCurrentQuote(ctx context.Context, tickers []string) (*[]datastore.StockPrices, error) {
+	defer utils.TimeTaken("GetCurrentQuote", tdapi.logger)()
+	apiToken := "GJHIDO67W7GDJHPGUAOC9CHUKNEMXGOM"
+	queryParams := fmt.Sprintf("apikey=%s&symbol=%s", apiToken, strings.Join(tickers[:], ","))
+	endpoint := fmt.Sprintf("https://api.tdameritrade.com/v1/marketdata/quotes?%s", queryParams)
+	fmt.Printf("Endpoint : %s\n", endpoint)
+	req, _ := http.NewRequest("GET", endpoint, nil)
+
+	c := &http.Client{
+		Timeout: 15 * time.Second,
+	}
+	resp, err := c.Do(req)
+	if err != nil {
+		tdapi.logger.Error("Error while accessing TD AMeritrade API", "error", err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var result map[string]map[string]interface{}
+	byteResp, _ := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(byteResp, &result)
+	stockPrices := make([]datastore.StockPrices, 0, len(tickers))
+	for ticker := range result {
+		tmp := datastore.StockPrices{}
+		tmp.Ticker = ticker
+		//Adding two hours because Ameritrade's Datetime has epoch as of 05 AM UTC for that trading day
+		currentUTCInst := time.Now().In(time.UTC)
+		year, month, day := currentUTCInst.Date()
+		dayAt7UTC := time.Date(year, month, day, 0, 0, 0, 0, currentUTCInst.Location()).Add(time.Hour * time.Duration(7))
+		tmp.Date = dayAt7UTC
+		tmp.Open = result[ticker]["openPrice"].(float64)
+		tmp.High = result[ticker]["highPrice"].(float64)
+		tmp.Low = result[ticker]["lowPrice"].(float64)
+		tmp.Close = result[ticker]["lastPrice"].(float64)
+		stockPrices = append(stockPrices, tmp)
+	}
+	return &stockPrices, nil
+}
+
+func (tdapi *TDAmeritradeAPI) SaveCurrentQuote(ctx context.Context, tickers []string) error {
+	defer utils.TimeTaken("SaveCurrentQuote", tdapi.logger)()
+	currentPrices, err := tdapi.GetCurrentQuote(ctx, tickers)
+	if err != nil {
+		return err
+	}
+	tdapi.logger.Info("Saving Current Prices in DB", "tickers", tickers)
+	if err := tdapi.repository.AddBatchQuotes(ctx, currentPrices); err != nil {
 		return err
 	}
 	return nil

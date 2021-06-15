@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
-	finnhub "github.com/Finnhub-Stock-API/finnhub-go"
 	logutils "github.com/cloudlifter/go-utils/logs"
 	configutils "github.com/justhackit/stocksdash/config"
+	"github.com/justhackit/stocksdash/datastore"
+	"github.com/justhackit/stocksdash/service"
 )
 
 func main() {
@@ -15,16 +17,16 @@ func main() {
 	configFilepath := os.Args[1:][0]
 	configs := configutils.NewConfigurationsFromFile(configFilepath, logger)
 	logger.Info("config", configs)
-
-	finnhubClient := finnhub.NewAPIClient(finnhub.NewConfiguration()).DefaultApi
-	auth := context.WithValue(context.Background(), finnhub.ContextAPIKey, finnhub.APIKey{
-		Key: "c2vuokiad3ifkigc36hg", // Replace this
-	})
-	//Stock candles
-	stockCandles, _, err := finnhubClient.StockCandles(auth, "AAPL", "D", 1590988249, 1591852249, nil)
-	if err != nil {
-		fmt.Errorf("%v", err)
+	db, _ := datastore.NewConnection(configs, logger)
+	repo := datastore.NewPostgresRepository(db, logger)
+	tdameritrade := service.NewTDAmeritradeService("GJHIDO67W7GDJHPGUAOC9CHUKNEMXGOM", repo, logger)
+	testTickers := []string{"IBM", "NKE"}
+	for range time.Tick(time.Second * 5) {
+		fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
+		if err := tdameritrade.SaveCurrentQuote(context.TODO(), testTickers); err != nil {
+			fmt.Printf("unable to save current quotes : %v\n", err)
+			panic(err)
+		}
 	}
-	fmt.Printf("%+v\n", stockCandles)
 
 }
