@@ -28,10 +28,16 @@ func (repo *PostgresRepository) AddNewTrade(ctx context.Context, userId string, 
 	return result.Error
 }
 
-func (repo *PostgresRepository) GetHoldingsByUser(ctx context.Context, userId string) (*[]Holding, error) {
+func (repo *PostgresRepository) GetHoldings(ctx context.Context, userId ...string) (*[]Holding, error) {
 	defer utils.TimeTaken("GetHoldingsByUser", repo.logger)()
 	allTrades := []Holding{}
-	result := repo.db.Debug().Where("user_id = ?", userId).Find(&allTrades)
+	var result *gorm.DB
+	if len(userId) == 1 {
+		result = repo.db.Debug().Where("user_id = ?", userId).Find(&allTrades)
+	} else if len(userId) == 0 { //find all
+		result = repo.db.Debug().Find(&allTrades)
+	}
+
 	return &allTrades, result.Error
 }
 
@@ -46,7 +52,7 @@ func (repo *PostgresRepository) AddHistorical(ctx context.Context, tickers *Stoc
 
 func (repo *PostgresRepository) AddBatchQuotes(ctx context.Context, tickers *[]StockPrices) error {
 	defer utils.TimeTaken("AddBatchQuotes", repo.logger)()
-	result := repo.db.Clauses(clause.OnConflict{
+	result := repo.db.Debug().Clauses(clause.OnConflict{
 		UpdateAll: true,
 	}).CreateInBatches(&tickers, 100)
 	return result.Error

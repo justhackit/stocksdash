@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	AddNewTrade(ctx context.Context, userId string, trade *Holding) error
 	//DeleteATicker(ctx context.Context, ticker string, userId string) error //yet to implement
-	GetHoldingsByUser(ctx context.Context, userId string) (*[]Holding, error)
+	GetHoldings(ctx context.Context, userId ...string) (*[]Holding, error)
 	AddHistorical(ctx context.Context, tickers *StockPrices) error
 	AddBatchQuotes(ctx context.Context, tickers *[]StockPrices) error
 	//DeleteHistorical(ctx context.Context, ticker string, timeBefore ...time.Time) error        //yet to implement

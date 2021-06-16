@@ -25,18 +25,16 @@ func init() {
 }
 
 func Test_AddNewTrade(t *testing.T) {
-	testHolding := Holding{Ticker: "NKE", AvgCostPrice: 125.5, TotalShares: 45.5}
+	testHolding := Holding{Ticker: "BIGC", AvgCostPrice: 70.66, TotalShares: 100}
 	if err := repository.AddNewTrade(context.TODO(), "testuserid", &testHolding); err != nil {
 		t.Errorf("Unable to add new trade. failed : %v", err)
 	}
-	//	all, _ := repository.GetHoldingsByUser(context.TODO(), "testuserid")
-	//fmt.Printf("%#v", all)
 
 }
 
 func Test_GetHoldingsByUser(t *testing.T) {
 	testUserId := "testuserid"
-	if holdings, err := repository.GetHoldingsByUser(context.TODO(), testUserId); err != nil {
+	if holdings, err := repository.GetHoldings(context.TODO(), testUserId); err != nil {
 		t.Errorf("Error while getting holdings of an user : %v", err)
 		t.Logf("All holdings: %#v", holdings)
 		if len(*holdings) == 0 {

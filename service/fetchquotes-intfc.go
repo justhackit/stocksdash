@@ -12,4 +12,5 @@ type FetchQuotes interface {
 	SaveHistoricalQuotes(ctx context.Context, ticker string, from time.Time, to time.Time) error
 	GetCurrentQuote(ctx context.Context, tickers []string) error
 	SaveCurrentQuote(ctx context.Context, tickers []string) error
+	KeepRefreshingQuotes(ctx context.Context) error
 }

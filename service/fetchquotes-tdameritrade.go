@@ -142,3 +142,39 @@ func (tdapi *TDAmeritradeAPI) SaveCurrentQuote(ctx context.Context, tickers []st
 	}
 	return nil
 }
+
+func (tdapi *TDAmeritradeAPI) KeepRefreshingQuotes(ctx context.Context) error {
+	tdapi.logger.Info("Quotes refresher beginning...")
+
+	for range time.Tick(time.Second * 30) {
+		hr, _, _ := time.Now().Clock()
+		week := time.Now().Weekday()
+		tradeWeekDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
+		isATradingDay := false
+		for _, aDay := range tradeWeekDays {
+			if aDay == week {
+				isATradingDay = true
+			}
+		}
+		if hr > 9 && hr < 4 && isATradingDay {
+			fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
+			holdings, err := tdapi.repository.GetHoldings(ctx)
+			if err != nil {
+				tdapi.logger.Error("unable to read holdings", "error", err)
+			}
+			var allTickers = make([]string, 0, len(*holdings))
+			for _, holding := range *holdings {
+				allTickers = append(allTickers, holding.Ticker)
+			}
+			if err := tdapi.SaveCurrentQuote(ctx, allTickers); err != nil {
+				fmt.Printf("unable to save current quotes : %v\n", err)
+				panic(err)
+			}
+		} else {
+			tdapi.logger.Info("Not trading hour..")
+		}
+	}
+
+	return nil
+
+}
