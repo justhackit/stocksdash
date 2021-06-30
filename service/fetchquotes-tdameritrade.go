@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/cloudlifter/go-utils/comms"
 	utils "github.com/cloudlifter/go-utils/timeutils"
 
 	"github.com/hashicorp/go-hclog"
@@ -93,7 +95,7 @@ func (tdapi *TDAmeritradeAPI) SaveHistoricalQuotes(ctx context.Context, ticker s
 
 func (tdapi *TDAmeritradeAPI) GetCurrentQuote(ctx context.Context, tickers []string) (*[]datastore.StockPrices, error) {
 	defer utils.TimeTaken("GetCurrentQuote", tdapi.logger)()
-	apiToken := "GJHIDO67W7GDJHPGUAOC9CHUKNEMXGOM"
+	apiToken := os.Getenv("TDAMERITRADE_TOKEN")
 	queryParams := fmt.Sprintf("apikey=%s&symbol=%s", apiToken, strings.Join(tickers[:], ","))
 	endpoint := fmt.Sprintf("https://api.tdameritrade.com/v1/marketdata/quotes?%s", queryParams)
 	fmt.Printf("Endpoint : %s\n", endpoint)
@@ -145,10 +147,11 @@ func (tdapi *TDAmeritradeAPI) SaveCurrentQuote(ctx context.Context, tickers []st
 
 func (tdapi *TDAmeritradeAPI) KeepRefreshingQuotes(ctx context.Context) error {
 	tdapi.logger.Info("Quotes refresher beginning...")
-
 	for range time.Tick(time.Second * 30) {
-		hr, _, _ := time.Now().Clock()
-		week := time.Now().Weekday()
+		loc := time.FixedZone("UTC-7", -7*60*60)
+		now := time.Now().In(loc)
+		hr, _, _ := now.Clock()
+		week := now.Weekday()
 		tradeWeekDays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}
 		isATradingDay := false
 		for _, aDay := range tradeWeekDays {
@@ -156,7 +159,7 @@ func (tdapi *TDAmeritradeAPI) KeepRefreshingQuotes(ctx context.Context) error {
 				isATradingDay = true
 			}
 		}
-		if hr > 9 && hr < 4 && isATradingDay {
+		if hr > 6 && hr < 16 && isATradingDay {
 			fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
 			holdings, err := tdapi.repository.GetHoldings(ctx)
 			if err != nil {
@@ -168,10 +171,11 @@ func (tdapi *TDAmeritradeAPI) KeepRefreshingQuotes(ctx context.Context) error {
 			}
 			if err := tdapi.SaveCurrentQuote(ctx, allTickers); err != nil {
 				fmt.Printf("unable to save current quotes : %v\n", err)
-				panic(err)
+				comms.SendPushNotification("Error getting current quotes", err.Error())
+				return err
 			}
 		} else {
-			tdapi.logger.Info("Not trading hour..")
+			tdapi.logger.Info("Not a trading hour..", "week", week, "hour", hr, "curr_time", time.Now())
 		}
 	}
 

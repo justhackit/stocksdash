@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/cloudlifter/go-utils/comms"
 	logutils "github.com/cloudlifter/go-utils/logs"
 	"github.com/justhackit/stocksdash/config"
 	"github.com/justhackit/stocksdash/datastore"
@@ -18,7 +20,7 @@ func init() {
 	configs := config.NewConfigurationsFromFile("../test-config.yaml", logger)
 	db, _ := datastore.NewConnection(configs, logger)
 	repo := datastore.NewPostgresRepository(db, logger)
-	tdameritrade = NewTDAmeritradeService("GJHIDO67W7GDJHPGUAOC9CHUKNEMXGOM", repo, logger)
+	tdameritrade = NewTDAmeritradeService(os.Getenv("TDAMERITRADE_TOKEN"), repo, logger)
 }
 
 func Test_GetHistoricalQuotes(t *testing.T) {
@@ -58,6 +60,7 @@ func Test_GetCurrentQuote(t *testing.T) {
 
 func Test_SaveCurrentQuote(t *testing.T) {
 	testTickers := []string{"IBM", "NKE"}
+	comms.SendPushNotification("test", "test")
 	for range time.Tick(time.Second * 5) {
 		fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
 		if err := tdameritrade.SaveCurrentQuote(context.TODO(), testTickers); err != nil {

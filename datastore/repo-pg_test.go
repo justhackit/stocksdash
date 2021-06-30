@@ -25,7 +25,7 @@ func init() {
 }
 
 func Test_AddNewTrade(t *testing.T) {
-	testHolding := Holding{Ticker: "BIGC", AvgCostPrice: 70.66, TotalShares: 100}
+	testHolding := Holding{Ticker: "SKLZ", AvgCostPrice: 18.18, TotalShares: 55.966739}
 	if err := repository.AddNewTrade(context.TODO(), "testuserid", &testHolding); err != nil {
 		t.Errorf("Unable to add new trade. failed : %v", err)
 	}
