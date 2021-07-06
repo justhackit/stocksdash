@@ -29,7 +29,20 @@ type GenericResponse struct {
 }
 
 type DashboardAPIResponse struct {
-	Ticker       string  `json:"ticker"`
-	AvgCostPrice float64 `json:"avgCostPrice"`
-	TotalShares  float64 `json:"totalShares"`
+	Ticker                string  `json:"ticker"`
+	AvgCostPrice          float64 `json:"avgCostPrice"`
+	TotalShares           float64 `json:"totalShares"`
+	ProfitLoss            float64 `json:"profitLoss"`
+	ProfitLossPerc        float64 `json:"profitLossPerc"`
+	TodaysChange          float64 `json:"todaysChange"`
+	LastTwoDaysChange     float64 `json:"lastTwoDaysChange"`
+	LastThreeDaysChange   float64 `json:"lastThreeDaysChange"`
+	LastWeeksChange       float64 `json:"lastWeeksChange"`
+	LastTwoWeeksChange    float64 `json:"lastTwoWeeksChange"`
+	LastThreeWeeksChange  float64 `json:"lastThreeWeeksChange"`
+	LastMonthsChange      float64 `json:"lastMonthsChange"`
+	LastTwoMonthsChange   float64 `json:"lastTwoMonthsChange"`
+	LastThreeMonthsChange float64 `json:"lastThreeMonthsChange"`
+	LastSixMonthsChange   float64 `json:"lastSixMonthsChange"`
+	LastYearsChange       float64 `json:"lastYearsChange"`
 }

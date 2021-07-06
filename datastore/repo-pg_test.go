@@ -50,3 +50,11 @@ func Test_AddHistorical(t *testing.T) {
 		t.Errorf("Unable to add historical price: %v", err)
 	}
 }
+
+func Test_GetCurrentPrice(t *testing.T) {
+	testTickers := []string{"BIGC", "ROKU"}
+	prices, err := repository.GetCurrentPrice(context.TODO(), testTickers)
+	if len(prices) != len(testTickers) || err != nil {
+		t.Error("Unable to get current prices")
+	}
+}

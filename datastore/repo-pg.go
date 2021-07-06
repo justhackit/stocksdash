@@ -57,3 +57,15 @@ func (repo *PostgresRepository) AddBatchQuotes(ctx context.Context, tickers *[]S
 	}).CreateInBatches(&tickers, 100)
 	return result.Error
 }
+
+func (repo *PostgresRepository) GetCurrentPrice(ctx context.Context, tickers []string) (map[string]float64, error) {
+	defer utils.TimeTaken("GetCurrentPrice", repo.logger)()
+	query := "SELECT ticker,close from stock_prices WHERE ticker IN (?) and date = (select max(date) from stock_prices)"
+	prices := []StockPrices{}
+	res := repo.db.Raw(query, tickers).Find(&prices)
+	priceMap := make(map[string]float64)
+	for _, price := range prices {
+		priceMap[price.Ticker] = price.Close
+	}
+	return priceMap, res.Error
+}

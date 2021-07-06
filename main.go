@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/cloudlifter/go-utils/comms"
 	logutils "github.com/cloudlifter/go-utils/logs"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
@@ -31,7 +33,7 @@ func main() {
 	//Setup db if this is running for the first time
 	db.Debug().AutoMigrate(&datastore.Holding{}, &datastore.StockPrices{})
 	repo := datastore.NewPostgresRepository(db, logger)
-	/*
+	go func() {
 		tdAmeritradeToken := os.Getenv("TDAMERITRADE_TOKEN")
 		tdameritrade := service.NewTDAmeritradeService(tdAmeritradeToken, repo, logger)
 		maxRetriesAllowed := 30
@@ -41,7 +43,8 @@ func main() {
 			time.Sleep(5 * time.Minute)
 		}
 		comms.SendPushNotification("main.go", fmt.Sprintf("Max retries exhausted : %d", maxRetriesAllowed))
-	*/
+	}()
+
 	apiService := service.NewStockdashSvc(logger, configs)
 	serviceHandler := handlers.NewStocksdashHandler(logger, configs, repo, apiService)
 	sm := mux.NewRouter().PathPrefix("/stocksdash").Subrouter()

@@ -11,6 +11,7 @@ import (
 
 type Stocksdash interface {
 	ValidateAccessToken(token string) (string, error)
+	//CalculateProfitLoss(costPrice )
 }
 
 // AccessTokenCustomClaims specifies the claims for access token
