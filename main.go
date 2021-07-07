@@ -43,6 +43,7 @@ func main() {
 			time.Sleep(5 * time.Minute)
 		}
 		comms.SendPushNotification("main.go", fmt.Sprintf("Max retries exhausted : %d", maxRetriesAllowed))
+		panic("max retries exhausted...")
 	}()
 
 	apiService := service.NewStockdashSvc(logger, configs)

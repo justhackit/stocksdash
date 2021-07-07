@@ -11,7 +11,7 @@ import (
 
 type Stocksdash interface {
 	ValidateAccessToken(token string) (string, error)
-	//CalculateProfitLoss(costPrice )
+	//CalculateProfitLoss(holdings *[]datastore.Holding,currPrices map[string]float64) (map[string])
 }
 
 // AccessTokenCustomClaims specifies the claims for access token

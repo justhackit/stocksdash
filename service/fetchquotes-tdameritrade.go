@@ -159,7 +159,7 @@ func (tdapi *TDAmeritradeAPI) KeepRefreshingQuotes(ctx context.Context) error {
 				isATradingDay = true
 			}
 		}
-		if hr > 6 && hr < 16 && isATradingDay {
+		if hr > 6 && hr <= 13 && isATradingDay {
 			fmt.Printf("\n\n=========================\nRefreshing at %s\n", time.Now())
 			holdings, err := tdapi.repository.GetHoldings(ctx)
 			if err != nil {
