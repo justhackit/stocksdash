@@ -33,18 +33,6 @@ func main() {
 	//Setup db if this is running for the first time
 	db.Debug().AutoMigrate(&datastore.Holding{}, &datastore.StockPrices{})
 	repo := datastore.NewPostgresRepository(db, logger)
-	go func() {
-		tdAmeritradeToken := os.Getenv("TDAMERITRADE_TOKEN")
-		tdameritrade := service.NewTDAmeritradeService(tdAmeritradeToken, repo, logger)
-		maxRetriesAllowed := 30
-		for timeoutsSoFar := 0; timeoutsSoFar < maxRetriesAllowed; timeoutsSoFar++ {
-			tdameritrade.KeepRefreshingQuotes(context.TODO())
-			logger.Error("Error while refreshing quotes. Retrying after after waiting for 5 mins... ", "timeOutsSoFar", timeoutsSoFar)
-			time.Sleep(5 * time.Minute)
-		}
-		comms.SendPushNotification("main.go", fmt.Sprintf("Max retries exhausted : %d", maxRetriesAllowed))
-		panic("max retries exhausted...")
-	}()
 
 	apiService := service.NewStockdashSvc(logger, configs)
 	serviceHandler := handlers.NewStocksdashHandler(logger, configs, repo, apiService)
@@ -71,7 +59,22 @@ func main() {
 		if err != nil {
 			logger.Error("could not start the server", "error", err)
 			os.Exit(1)
+		} else {
+			logger.Info("Server started successfully...")
 		}
+	}()
+
+	go func() {
+		tdAmeritradeToken := os.Getenv("TDAMERITRADE_TOKEN")
+		tdameritrade := service.NewTDAmeritradeService(tdAmeritradeToken, repo, logger)
+		maxRetriesAllowed := 30
+		for timeoutsSoFar := 0; timeoutsSoFar < maxRetriesAllowed; timeoutsSoFar++ {
+			tdameritrade.KeepRefreshingQuotes(context.TODO())
+			logger.Error("Error while refreshing quotes. Retrying after after waiting for 5 mins... ", "timeOutsSoFar", timeoutsSoFar)
+			time.Sleep(5 * time.Minute)
+		}
+		comms.SendPushNotification("main.go", fmt.Sprintf("Max retries exhausted : %d", maxRetriesAllowed))
+		panic("max retries exhausted...")
 	}()
 
 	// look for interrupts for graceful shutdown
