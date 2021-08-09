@@ -7,3 +7,4 @@ database:
   DBPass:        "Secret_123" 
   DBPort:        "5432"
   DBSchema:      "stocks"
+JWTTokenPublicKeyPath:   "./access-public.pem"

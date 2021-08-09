@@ -31,5 +31,6 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=builder /build/stocksdash .
+COPY --from=builder /build/*.pem .
 #COPY --from=builder /build/k8s-config.yaml .
 #CMD ["./stocksdash","k8s-config.yaml"]

@@ -37,6 +37,12 @@ func main() {
 	apiService := service.NewStockdashSvc(logger, configs)
 	serviceHandler := handlers.NewStocksdashHandler(logger, configs, repo, apiService)
 	sm := mux.NewRouter().PathPrefix("/stocksdash").Subrouter()
+	sm.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		responseStr := "pong at " + time.Now().String()
+		w.Write([]byte(responseStr))
+	}).Methods("GET")
+
 	getR := sm.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/dashboard", serviceHandler.Stocksdashboard)
 	getR.Use(serviceHandler.MiddlewareValidateAccessToken)

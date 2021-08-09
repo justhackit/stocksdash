@@ -37,8 +37,8 @@ func (stock *StockdashSvc) ValidateAccessToken(tokenString string) (string, erro
 			stock.logger.Error("Unexpected signing method in auth token")
 			return nil, errors.New("unexpected signing method in auth token")
 		}
-		//verifyBytes, err := ioutil.ReadFile(auth.configs.AccessTokenConf.AccessTokenPublicKeyPath)
-		verifyBytes, err := ioutil.ReadFile("/Users/AEdapa/Personal/justhackit_github/stocksdash/access-public.pem")
+		verifyBytes, err := ioutil.ReadFile(stock.configs.JWTTokenPublicKeyPath)
+		//verifyBytes, err := ioutil.ReadFile("/Users/AEdapa/Personal/justhackit_github/stocksdash/access-public.pem")
 		if err != nil {
 			stock.logger.Error("unable to read public key", "error", err)
 			return nil, err
