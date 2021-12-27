@@ -2,9 +2,7 @@ function validate(){
     let unameElem=document.getElementById("uname")
     let pswdElem=document.getElementById("psw")
     let uname=unameElem.value
-    uname='aj.nextstep@gmail.com'
     let pswd=pswdElem.value
-    pswd='Paswd1234'
     let errMsg=""
     if(!uname.endsWith(".com")){
         errMsg += "Invalid Email Id!\n"
