@@ -7,6 +7,8 @@ function loginClicked(){
             if(loginHttpRespObj.status === 200)
         {
             console.log("Login is successfull")
+            document.getElementById("loginForm").style.display="none"
+            document.getElementById("mainDash").style.display="block"
             let respObj = JSON.parse(loginHttpRespObj.responseText)
             let accessToken = respObj.data.access_token
             document.accessToken = accessToken
@@ -31,12 +33,27 @@ function loginClicked(){
     }
 }
 
+function logoutClicked(){
+    console.log("User clicked logout")
+    document.getElementById("mainDash").style.display="none"
+    document.getElementById("loginForm").style.display="block"
+    window.localStorage.removeItem("refrt")
+    document.accessToken=null
+    clearInterval(window.refreshIntervalId)
+    clearInterval(window.tokenIntervalId)
+}
+
 
 function getNewAccessToken(){
     console.log(new Date()+" : Getting new access token using refresh token..")
     $ajaxUtils.sendGETRequest("https://ajaysquare.com/auth-api/refresh-token",function(getHttpReq){
-        let respObj = JSON.parse(getHttpReq.responseText)
-        document.accessToken = respObj.data.access_token
+        if(getHttpReq.status===200){
+            let respObj = JSON.parse(getHttpReq.responseText)
+            document.accessToken = respObj.data.access_token
+        }else {
+            //TODO
+        }
+        
     },{"Authorization":"Bearer "+window.localStorage.getItem("refrt")})
     
 }
@@ -84,5 +101,4 @@ function validate(){
 function clearFields(){
     document.getElementById("uname").value='';
     document.getElementById("psw").value='';
-    document.getElementById("mainMsg").textContent="Enter your credentials"
 }
