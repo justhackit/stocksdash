@@ -7,22 +7,27 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="">
+        <style>
+            .header,.footer {
+                padding: 5px;
+                text-align: center;
+                background: #1abc9c;
+                color: white;
+                font-size: 30px;
+            }
+        </style>
         <script src="js/ajax-utils.js" ></script>
         <script src="js/script.js" ></script>
     </head>
     <body>
-        <div class="container" id="loginForm">
-            <label for="uname"><b>Email-Id : </b></label>
-            <input type="text" id="uname" placeholder="Registered email id">
-            <label for="psw"><b>Password : </b></label>
-            <input type="password" placeholder="Your password" id="psw">
-            <button type="button" onclick="loginClicked();">Login</button>
-            <button type="button">Forgot password</button>
-            <button type="button" onclick="clearFields();">Clear</button>
-        </div>
-        <div class="container" style="display: none" id="mainDash">
-            <button  type="button" onclick="logoutClicked();">Logout</button>
-            <h1 id="mainMsg"></h1>
-        </div>
+        <div class="header">
+            <h1>My Portfolio</h1>
+          </div>
+        
+          <div id="main-content" class="container"></div>
+
+          <div class="footer">
+              <h2 id="ftrMsg"></h2>
+          </div>
     </body>
 </html>

@@ -1,3 +1,30 @@
+(function(global){
+    let loginPage = "snippets/login-snippet.html";
+    var myP = {};
+    // Convenience function for inserting innerHTML for 'select'
+    myP.insertHtml = function(selector,html){
+        let elem = document.querySelector(selector);
+        elem.innerHTML = html
+    };
+
+    myP.showLoading = function(selector){
+        let html = "<div class='text-center'>";
+        html += "<img src='images/Vanilla-1s-280px.gif'></div>"
+        myP.insertHtml(selector,html)
+    }
+
+    //on page load
+    document.addEventListener("DOMContentLoaded",function(event){
+        myP.showLoading("#main-content");
+        $ajaxUtils.sendGETRequest(loginPage,function(getHttpReq){
+            myP.insertHtml("#main-content",getHttpReq.responseText);
+        })
+    })
+
+    global.$myP = myP
+
+})(window);
+
 function loginClicked(){
     let validationResult = validate()
     if(validationResult !==false){
@@ -7,14 +34,13 @@ function loginClicked(){
             if(loginHttpRespObj.status === 200)
         {
             console.log("Login is successfull")
-            document.getElementById("loginForm").style.display="none"
-            document.getElementById("mainDash").style.display="block"
             let respObj = JSON.parse(loginHttpRespObj.responseText)
             let accessToken = respObj.data.access_token
             document.accessToken = accessToken
             let refreshToken = respObj.data.refresh_token;
             //!!!Storing the refresh token in local storage
             window.localStorage.setItem("refrt",refreshToken);
+            loadDashboardPage();
             refreshDashboard();
             //Refresh the stocks dashboard for every ? secs
             window.refreshIntervalId=setInterval(refreshDashboard,1*60*1000);
@@ -35,10 +61,16 @@ function loginClicked(){
 
 function logoutClicked(){
     console.log("User clicked logout")
-    document.getElementById("mainDash").style.display="none"
-    document.getElementById("loginForm").style.display="block"
     window.localStorage.removeItem("refrt")
+    $myP.showLoading("#main-content");
+    $ajaxUtils.sendGETRequest("snippets/login-snippet.html",function(getHttpReq){
+        $myP.insertHtml("#main-content",getHttpReq.responseText);
+    })
     document.accessToken=null
+    stopRefreshes();
+}
+
+function stopRefreshes(){
     clearInterval(window.refreshIntervalId)
     clearInterval(window.tokenIntervalId)
 }
@@ -51,11 +83,21 @@ function getNewAccessToken(){
             let respObj = JSON.parse(getHttpReq.responseText)
             document.accessToken = respObj.data.access_token
         }else {
-            //TODO
+            console.log("Unable to get refresh token. Loading login page")
+            $myP.showLoading("#main-content");
+            $ajaxUtils.sendGETRequest("snippets/login-snippet.html",function(getHttpReq){
+                $myP.insertHtml("#main-content",getHttpReq.responseText);
+            })
         }
         
     },{"Authorization":"Bearer "+window.localStorage.getItem("refrt")})
     
+}
+
+function loadDashboardPage(){
+    $ajaxUtils.sendGETRequest("snippets/dashboard-snippet.html",function(getHttpReq){
+        $myP.insertHtml("#main-content",getHttpReq.responseText)
+    })
 }
 
 function refreshDashboard(){
@@ -63,10 +105,13 @@ function refreshDashboard(){
     $ajaxUtils.sendGETRequest("https://ajaysquare.com/stocksdash/dashboard",function(getHttpReq){
         if(getHttpReq.status===200){
             document.getElementById("mainMsg").style.color = "green"
-        }else {
-            document.getElementById("mainMsg").style.color = "red"
+        }else if(getHttpReq.status===400) {
+            document.accessToken=getNewAccessToken()
+            refreshDashboard();
+            //document.getElementById("mainMsg").style.color = "red"
         }
-        document.getElementById("mainMsg").textContent=getHttpReq.responseText +"\n"+"Last refreshed at : "+new Date();
+        document.getElementById("mainMsg").textContent=getHttpReq.responseText
+        document.getElementById("ftrMsg").textContent="Last refreshed at : "+new Date();
     },{"Authorization":"Bearer "+document.accessToken})
 }
 
