@@ -84,6 +84,7 @@ function getNewAccessToken(){
             document.accessToken = respObj.data.access_token
         }else {
             console.log("Unable to get refresh token. Loading login page")
+            stopRefreshes();
             $myP.showLoading("#main-content");
             $ajaxUtils.sendGETRequest("snippets/login-snippet.html",function(getHttpReq){
                 $myP.insertHtml("#main-content",getHttpReq.responseText);
@@ -104,17 +105,46 @@ function refreshDashboard(){
     console.log(new Date()+" : Refreshing the dashboard...")
     $ajaxUtils.sendGETRequest("https://ajaysquare.com/stocksdash/dashboard",function(getHttpReq){
         if(getHttpReq.status===200){
-            document.getElementById("mainMsg").style.color = "green"
         }else if(getHttpReq.status===400) {
             document.accessToken=getNewAccessToken()
             refreshDashboard();
             //document.getElementById("mainMsg").style.color = "red"
         }
-        document.getElementById("mainMsg").textContent=getHttpReq.responseText
+        document.getElementById("mainMsg").innerHTML=buildAndGetTableHTMLFromJSON(JSON.parse(getHttpReq.responseText))
+        //document.getElementById("mainMsg").textContent=getHttpReq.responseText
         document.getElementById("ftrMsg").textContent="Last refreshed at : "+new Date();
     },{"Authorization":"Bearer "+document.accessToken})
 }
 
+function buildAndGetTableHTMLFromJSON(responseJson){
+    var tableHtml = '<table> \
+    <tr style="background-color:#808080"> \
+      <th>Stock</th> \
+      <th>Bought At$</th> \
+      <th>Present Price$</th> \
+      <th>Total shares</th> \
+      <th>Profit or Loss</th> \
+      <th>Percentage</th> \
+    </tr>'
+    
+    for(var i = 0; i < responseJson.length; i++) {
+        var aStock = responseJson[i];
+        if(aStock["profitLoss"] <0){
+            tableHtml += '<tr style="background-color:#FF0000">'
+        }else{
+            tableHtml += '<tr style="background-color:#008000">'
+        }
+        tableHtml += '<td>' + aStock["ticker"] + '</td>'
+        tableHtml += '<td>' + aStock["avgCostPrice"] + '</td>'
+        tableHtml += '<td>' + Math.round(aStock["currentPrice"] * 100) / 100 + '</td>'
+        tableHtml += '<td>' + aStock["totalShares"] + '</td>'
+        tableHtml += '<td>' + Math.round(aStock["profitLoss"] * 100) / 100 + '</td>'
+        tableHtml += '<td>' + Math.round(aStock["profitLossPerc"] * 100) / 100 + '%</td>'
+        tableHtml+='</tr>'
+    }
+
+    return tableHtml + '</table>'
+}
 
 function validate(){
     let unameElem=document.getElementById("uname")
