@@ -105,12 +105,12 @@ function refreshDashboard(){
     console.log(new Date()+" : Refreshing the dashboard...")
     $ajaxUtils.sendGETRequest("https://ajaysquare.com/stocksdash/dashboard",function(getHttpReq){
         if(getHttpReq.status===200){
+            document.getElementById("mainMsg").innerHTML=buildAndGetTableHTMLFromJSON(JSON.parse(getHttpReq.responseText))
         }else if(getHttpReq.status===400) {
             document.accessToken=getNewAccessToken()
             refreshDashboard();
             //document.getElementById("mainMsg").style.color = "red"
         }
-        document.getElementById("mainMsg").innerHTML=buildAndGetTableHTMLFromJSON(JSON.parse(getHttpReq.responseText))
         //document.getElementById("mainMsg").textContent=getHttpReq.responseText
         document.getElementById("ftrMsg").textContent="Last refreshed at : "+new Date();
     },{"Authorization":"Bearer "+document.accessToken})
